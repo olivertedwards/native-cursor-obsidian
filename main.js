@@ -109,6 +109,17 @@ var tableCellViewPlugin = codemirrorView.ViewPlugin.define(function (view) {
  * === Coordinate helper ===
  */
 
+function lineHeightAt(view, pos) {
+	try {
+		var node = view.domAtPos(pos).node;
+		if (node.nodeType === 3) node = node.parentElement;
+		var lineEl = node.closest('.cm-line') || node;
+		var h = parseFloat(getComputedStyle(lineEl).lineHeight);
+		if (h > 0) return h;
+	} catch (e) {}
+	return view.defaultLineHeight;
+}
+
 function getScrollOrigin(view) {
 	var rect = view.scrollDOM.getBoundingClientRect();
 	var left =
@@ -179,11 +190,17 @@ var CursorWidget = (function () {
 		var coords = view.coordsAtPos(range.head, range.assoc || 1);
 		if (!coords) return null;
 		var origin = getScrollOrigin(view);
+		var lineHeight = lineHeightAt(view, range.head);
+		var glyphTop = coords.top - origin.top;
+		var glyphHeight = coords.bottom - coords.top;
+		var leading = lineHeight - glyphHeight;
+		var top = glyphTop - Math.max(0, leading) / 2;
+		var height = Math.max(lineHeight, glyphHeight);
 		return new CursorWidget(
 			className,
 			coords.left - origin.left,
-			coords.top - origin.top,
-			coords.bottom - coords.top,
+			top,
+			height,
 		);
 	};
 
@@ -196,11 +213,17 @@ var CursorWidget = (function () {
 		var coords = activeView.coordsAtPos(range.head, range.assoc || 1);
 		if (!coords) return null;
 		var origin = getScrollOrigin(hostView);
+		var lineHeight = lineHeightAt(activeView, range.head);
+		var glyphTop = coords.top - origin.top;
+		var glyphHeight = coords.bottom - coords.top;
+		var leading = lineHeight - glyphHeight;
+		var top = glyphTop - Math.max(0, leading) / 2;
+		var height = Math.max(lineHeight, glyphHeight);
 		return new CursorWidget(
 			className,
 			coords.left - origin.left,
-			coords.top - origin.top,
-			coords.bottom - coords.top,
+			top,
+			height,
 		);
 	};
 
