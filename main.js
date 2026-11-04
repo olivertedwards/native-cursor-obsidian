@@ -354,11 +354,13 @@ var DEFAULT_SETTINGS = {
  */
 
 var CursorSettingTab = (function (_super) {
-	Object.setPrototypeOf(CursorSettingTab.prototype, _super.prototype);
-
-	function CursorSettingTab(app, plugin) {
-		_super.call(this, app, plugin);
-		this.plugin = plugin;
+	// Patched for Obsidian 1.15+: base classes are now native ES classes,
+	// so subclasses must use `extends`/`super()` instead of `_super.call(this)`.
+	class CursorSettingTab extends _super {
+		constructor(app, plugin) {
+			super(app, plugin);
+			this.plugin = plugin;
+		}
 	}
 
 	CursorSettingTab.prototype.display = function () {
@@ -445,14 +447,15 @@ var CursorSettingTab = (function (_super) {
  */
 
 var NativeCursorPlugin = (function (_super) {
-	Object.setPrototypeOf(NativeCursorPlugin.prototype, _super.prototype);
-
-	function NativeCursorPlugin() {
-		_super.apply(this, arguments);
-		this.alreadyPatched = false;
-		this.tryPatchRef = null;
-		this.cursorPlugin = null;
-		this.styleEl = null;
+	// Patched for Obsidian 1.15+ (see CursorSettingTab above).
+	class NativeCursorPlugin extends _super {
+		constructor(...args) {
+			super(...args);
+			this.alreadyPatched = false;
+			this.tryPatchRef = null;
+			this.cursorPlugin = null;
+			this.styleEl = null;
+		}
 	}
 
 	NativeCursorPlugin.prototype.onload = async function () {
